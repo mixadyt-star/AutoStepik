@@ -119,7 +119,7 @@ class DefaultStepikClient(StepikClient):
 
         return from_dict(Attempt, response.json()["attempts"][0])
     
-    def create_new_solution(self, attempt_id, code = None, choices = None):
+    def create_new_solution(self, attempt_id, code = None, choices = None, text = None):
         if (code is not None):
             reply_type = SolutionReplyType(
                 code=code,
@@ -129,6 +129,11 @@ class DefaultStepikClient(StepikClient):
         elif (choices is not None):
             reply_type = SolutionReplyType(
                 choices=choices,
+            )
+
+        elif (text is not None):
+            reply_type = SolutionReplyType(
+                text=text,
             )
 
         response = self.connection.get_response(

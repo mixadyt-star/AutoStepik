@@ -1,11 +1,11 @@
-from .base import CodeSolver, ChoiceSolver, TextSolver
+from .base import CodeSolver, ChoiceSolver, StringSolver, TextSolver
 from ..logger import logger
 from time import sleep
 import requests
 import json
 from typing import List
 
-class LlamaSolver(CodeSolver, ChoiceSolver, TextSolver):
+class LlamaSolver(CodeSolver, ChoiceSolver, TextSolver, StringSolver):
     def __init__(self, token_list: List[str]):
         self.token_list = token_list
 
@@ -143,3 +143,67 @@ class LlamaSolver(CodeSolver, ChoiceSolver, TextSolver):
         elif (step.block.name == "text"):
             logger.info(f"Solving text task...")
             self.send_text(step_id=step.id, assignment_id=assignment_id, stepik_client=stepik_client)
+
+        elif (step.block.name == "string"):
+            logger.info(f"Solving string task...")
+
+            new_attempt = stepik_client.create_new_attempt(step_id=step.id)
+            
+            prompt = """
+            Сейчас я дам тебе условие задачи в которой нужно будет ввести ответ.
+            Тебе нужно написать ответ, который эту задачу решит.
+            В ответ напиши ТОЛЬКО ответ решения ОБЫЧНЫМ ТЕКСТОМ БЕЗ МАРКДАУНА и НИЧЕГО больше.
+            """ + step.block.text + "\nТакже вот дополнительная информация о задаче: " + str(step.block.options)
+
+            logger.info(f"Sending task to AI...")
+            response = requests.post(
+                url="https://openrouter.ai/api/v1/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {self.token_list[0]}",
+                    "Content-Type": "application/json",
+                },
+                data=json.dumps({
+                    "model": "kwaipilot/kat-coder-pro:free", # "x-ai/grok-4.1-fast:free",
+                    "messages": [
+                        {
+                        "role": "user",
+                        "content": prompt
+                        }
+                    ]
+                })
+            )
+
+            response = response.json()
+            response = response['choices'][0]['message']
+
+            logger.info(f"Got response from AI")
+            
+            text = response["content"]
+
+            self.send_string(
+                attempt_id=new_attempt.id,
+                text=text,
+                stepik_client=stepik_client,
+            )
+
+            logger.info(f"Sent answer to stepik server successfully")
+
+            while (True):
+                sleep(1)
+
+                submissions = stepik_client.get_submissions(
+                        limit=1,
+                        step_id=step.id,
+                        user_id=user_id,
+                )
+
+                if (submissions[0].status == "wrong"):
+                    logger.info(f"Wrong solution :(")
+                    break
+                        
+                elif (submissions[0].status == "evaluation"):
+                    logger.info("Evaluation status...")
+
+                else:
+                    logger.info(f"Correct solution! (status {submissions[0].status})")
+                    break
