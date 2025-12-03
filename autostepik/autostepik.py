@@ -3,21 +3,7 @@ from .input_output import Input, Output, ConsoleInputOutput
 from .datatypes import Course, Section, Unit, Step, Progress
 from .solvers import Solver
 from typing import Optional, NoReturn
-import logging
-
-RESET = "\033[0m"
-INVERSE = "\033[7m"
-GREEN = "\033[32m"
-RED_BG = "\033[41m"
-
-logging.basicConfig(
-    level=logging.INFO,
-    format=f"{GREEN}[ %(asctime)s %(filename)s:%(lineno)d %(levelname)s] %(message)s{RESET}",
-    datefmt="%y-%m-%d %H:%M:%S"
-)
-
-logger = logging.getLogger(__name__) 
-logger.setLevel(logging.INFO)
+from .logger import logger
 
 class AutoStepik:
     def __init__(self, email: str, password: str, solver: Solver, stepik_client: Optional[StepikClient] = None, input_output: Optional[Input | Output] = None):
@@ -34,17 +20,17 @@ class AutoStepik:
             email=self.email,
             password=self.password,
         )
-        logging.info("Loged in successfully")
+        logger.info("Loged in successfully")
 
         self.id = self.stepik_client.get_self_id()
-        logging.info("Got self id successfully")
+        logger.info("Got self id successfully")
 
     def solve(self) -> NoReturn:
         user_courses = self.stepik_client.get_user_courses()
         courses = self.stepik_client.get_courses(
             ids=[user_course.course for user_course in user_courses],
         )
-        logging.info("Parsed courses successfully")
+        logger.info("Parsed courses successfully")
 
         self.input_output.print("Choose course: \n")
         for i, course in enumerate(courses):
@@ -57,23 +43,23 @@ class AutoStepik:
         self.solve_course(courses[choose - 1])
 
     def solve_course(self, course: Course) -> NoReturn:
-        logging.info(f"Solving course {course.title}...")
+        logger.info(f"Solving course {course.title}...")
         for section_id in course.sections:
             section = self.stepik_client.get_section(section_id)
 
             if (section.is_active):
                 self.solve_section(section)
 
-        logging.info(f"Solved course {course.title} successfully")
+        logger.info(f"Solved course {course.title} successfully")
 
     def solve_section(self, section: Section) -> NoReturn:
-        logging.info(f"Solving section {section.title}...")
+        logger.info(f"Solving section {section.title}...")
         for unit_id in section.units:
             unit = self.stepik_client.get_unit(unit_id)
 
             self.solve_unit(unit)
 
-        logging.info(f"Solved section {section.title} successfully")
+        logger.info(f"Solved section {section.title} successfully")
 
     def solve_unit(self, unit: Unit) -> NoReturn:
         assignments = self.stepik_client.get_assignments(
@@ -81,7 +67,7 @@ class AutoStepik:
         )
 
         lesson = self.stepik_client.get_lesson(unit.lesson)
-        logging.info(f"Solving lesson {lesson.title}...")
+        logger.info(f"Solving lesson {lesson.title}...")
 
         steps = self.stepik_client.get_steps(lesson.steps)
         progresses = self.stepik_client.get_progresses(
@@ -94,13 +80,13 @@ class AutoStepik:
         for step, progress, assignment_id in zip(steps, progresses, assignment_ids):
             self.solve_step(step, progress, assignment_id)
 
-        logging.info(f"Solved lesson {lesson.title} successfully")
+        logger.info(f"Solved lesson {lesson.title} successfully")
 
 
     def solve_step(self, step: Step, progress: Progress, assignment_id: int) -> NoReturn:
         if (not progress.is_passed):
             self.solver.context = []
-            logging.info(f"Solving step {step.position}...")
+            logger.info(f"Solving step {step.position}...")
             self.solver.solve(
                 step=step,
                 assignment_id=assignment_id,
@@ -108,6 +94,6 @@ class AutoStepik:
                 stepik_client=self.stepik_client,
             )
 
-            logging.info(f"Solved step {step.position} successfully")
+            logger.info(f"Solved step {step.position} successfully")
 
 
