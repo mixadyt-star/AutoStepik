@@ -3,6 +3,7 @@ from typing import Optional, List
 
 @dataclass
 class SolutionReplyType:
+    ordering: Optional[List[int]] = None
     text: Optional[str] = None
     choices: Optional[List[bool]] = None
     code: Optional[str] = None
