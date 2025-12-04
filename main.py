@@ -1,7 +1,7 @@
 from autostepik.autostepik import AutoStepik
-from autostepik.solvers import LlamaSolver
+from autostepik.solvers import DefaultSolver
 
-solver = LlamaSolver(token_list=[
+solver = DefaultSolver(token_list=[
     "YOUR OPEN ROUTER TOKEN"
 ])
 

@@ -5,7 +5,7 @@ import requests
 import json
 from typing import List
 
-class LlamaSolver(CodeSolver, ChoiceSolver, TextSolver, StringSolver, SortingSolver):
+class DefaultSolver(CodeSolver, ChoiceSolver, TextSolver, StringSolver, SortingSolver):
     def __init__(self, token_list: List[str]):
         self.token_list = token_list
 
