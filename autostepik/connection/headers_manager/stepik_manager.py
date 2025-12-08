@@ -1,4 +1,4 @@
-"""Module that provides stepik headers manager class"""
+"""Module that implements stepik headers manager class"""
 
 from .headers_manager import HeadersManager
 

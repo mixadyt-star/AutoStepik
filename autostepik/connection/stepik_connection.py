@@ -1,4 +1,4 @@
-"""Module that provides stepik connection class"""
+"""Module that implements stepik connection class"""
 
 from .session_manager import DefaultSessionManager
 from .headers_manager import StepikHeadersManager
