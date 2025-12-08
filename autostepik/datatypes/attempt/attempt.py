@@ -1,11 +1,14 @@
+"""Attempt dataclass module"""
+
 from dataclasses import dataclass
 from .attempt_dataset import AttemptDataset
-from typing import Dict, Any
 
 @dataclass
 class Attempt:
+    """Task attempt model"""
+
     id: int
-    dataset: AttemptDataset | Dict[Any, Any] | str | None
+    dataset: AttemptDataset | None
     dataset_url: None
     time: str
     status: str
