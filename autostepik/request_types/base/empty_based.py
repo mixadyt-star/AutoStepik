@@ -1,6 +1,6 @@
-from .base import Base
+from .base import RequestBase
 
-class EmptyBased(Base):
+class EmptyBased(RequestBase):
     def build(self):
         return {
             "url": self.url,

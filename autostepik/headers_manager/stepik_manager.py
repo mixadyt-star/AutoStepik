@@ -14,5 +14,5 @@ class StepikHeadersManager(HeadersManager):
     def get_headers(self):
         return self.headers
     
-    def set_header(self, header_name, header_value):
-        self.headers[header_name] = header_value
+    def set_header(self, name, value):
+        self.headers[name] = value

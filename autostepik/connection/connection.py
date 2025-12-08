@@ -1,14 +1,19 @@
+"""Abstract module of connection class"""
+
 from abc import ABC, abstractmethod
-from typing import Optional
-from ..session_manager import SessionManager
-from ..headers_manager import HeadersManager
 from requests import Response
-from ..request_types import Base
+from ..request_types import RequestBase
 
 
 class Connection(ABC):
-    @abstractmethod
-    def __init__(self, session_manager: Optional[SessionManager] = None, headers_manager: Optional[HeadersManager] = None): ...
+    """Sends requests to server and updates local state"""
 
     @abstractmethod
-    def get_response(self, datatype: Base, **kwargs) -> Response: ...
+    def get_response(self, request: RequestBase, **kwargs) -> Response:
+        """Sends request and returns response
+
+        :param request: Request that will be sent to the server
+        :type request: RequestBase
+        :return: Response that the server will return
+        :rtype: Response
+        """

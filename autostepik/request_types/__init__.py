@@ -1,5 +1,5 @@
 from .attempts_type import AttemptType, AttemptsType
-from .base import Base, EmptyBased, JsonBased, URLParamBased
+from .base import RequestBase, EmptyBased, JsonBased, URLParamBased
 from .solutions_type import SolutionReplyType, SolutionType, SolutionsType
 from .views_type import ViewType, ViewsType
 from .assignments_type import AssignmentsType

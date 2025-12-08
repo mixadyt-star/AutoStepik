@@ -1,7 +1,7 @@
 from dataclasses import asdict
-from .base import Base
+from .base import RequestBase
 
-class JsonBased(Base):
+class JsonBased(RequestBase):
     def build(self):
         json_body = asdict(self)
         url = json_body.pop("url")

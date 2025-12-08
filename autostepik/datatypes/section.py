@@ -20,7 +20,7 @@ class Section:
     exam_duration_minutes: int
     random_exam_problems_course: None
     random_exam_problems_count: int
-    exam_session: None
+    exam_session: int | None
     proctor_session: None
     description: str
     is_proctoring_can_be_scheduled: bool

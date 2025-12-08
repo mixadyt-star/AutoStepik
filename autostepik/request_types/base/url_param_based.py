@@ -1,8 +1,8 @@
 from dataclasses import asdict
 from urllib.parse import urlencode
-from .base import Base
+from .base import RequestBase
 
-class URLParamBased(Base):
+class URLParamBased(RequestBase):
     def build(self):
         url_body = asdict(self)
         url = url_body.pop("url")
