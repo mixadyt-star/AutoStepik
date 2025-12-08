@@ -1,3 +1,5 @@
+"""Colorful logger with file write support"""
+
 import logging
 import colorlog
 
