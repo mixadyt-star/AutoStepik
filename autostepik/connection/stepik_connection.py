@@ -1,7 +1,7 @@
 """Module that provides stepik connection class"""
 
-from ..session_manager import DefaultSessionManager
-from ..headers_manager import StepikHeadersManager
+from .session_manager import DefaultSessionManager
+from .headers_manager import StepikHeadersManager
 from .connection import Connection
 
 class StepikConnection(Connection):
