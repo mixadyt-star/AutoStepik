@@ -1,4 +1,4 @@
-"""Abstract module of connection class"""
+"""Module for abstract connection class"""
 
 from abc import ABC, abstractmethod
 from requests import Response

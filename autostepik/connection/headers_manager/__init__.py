@@ -1,2 +1,4 @@
+"""Package with different headers manager implementations"""
+
 from .stepik_manager import StepikHeadersManager
 from .headers_manager import HeadersManager
