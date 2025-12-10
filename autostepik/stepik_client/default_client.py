@@ -1,15 +1,15 @@
 from .stepik_client import StepikClient
-from ..connection import StepikConnection
+from ..connection import Connection, StepikConnection
 from ..request_types import MainType, LoginType, CatalogType, UserCoursesType, CoursesType, SectionsType, UnitsType, LessonsType, StepsType, ProgressesType, AttemptsType, AttemptType, SolutionReplyType, SolutionType, SolutionsType, SubmissionsType, ViewsType, ViewType, AssignmentsType
-from ..html_parser import SelfIDParser
+from ..html_parsers import SelfIDParser
 from ..datatypes import UserCourse, Course, Section, Unit, Lesson, Step, Progress, Attempt, Submission, Assignment
-from dacite import from_dict
-
-
+from ..datatype_parsers import DatatypeParser, DefaultDatatypeParser
+from typing import Optional
 
 class DefaultStepikClient(StepikClient):
-    def __init__(self, connection = None):
+    def __init__(self, connection: Optional[Connection] = None, datatype_parser: Optional[DatatypeParser] = None):
         self.connection = connection or StepikConnection()
+        self.datatype_parser = datatype_parser or DefaultDatatypeParser()
 
         self.connection.get_response(
             MainType()
@@ -43,7 +43,7 @@ class DefaultStepikClient(StepikClient):
             )
         )
 
-        return [from_dict(UserCourse, user_course) for user_course in response.json()["user-courses"]]
+        return self.datatype_parser.parse_list(UserCourse, response, "user-courses")
 
     def get_courses(self, ids):
         response = self.connection.get_response(
@@ -52,7 +52,7 @@ class DefaultStepikClient(StepikClient):
             )
         )
 
-        return [from_dict(Course, course) for course in response.json()["courses"]]
+        return self.datatype_parser.parse_list(Course, response, "courses")
     
     def get_section(self, id):
         response = self.connection.get_response(
@@ -61,7 +61,7 @@ class DefaultStepikClient(StepikClient):
             )
         )
 
-        return from_dict(Section, response.json()["sections"][0])
+        return self.datatype_parser.parse(Section, response, "sections")
     
     def get_unit(self, id):
         response = self.connection.get_response(
@@ -70,7 +70,7 @@ class DefaultStepikClient(StepikClient):
             )
         )
 
-        return from_dict(Unit, response.json()["units"][0])
+        return self.datatype_parser.parse(Unit, response, "units")
     
     def get_lesson(self, id):
         response = self.connection.get_response(
@@ -79,7 +79,7 @@ class DefaultStepikClient(StepikClient):
             )
         )
 
-        return from_dict(Lesson, response.json()["lessons"][0])
+        return self.datatype_parser.parse(Lesson, response, "lessons")
     
     def get_steps(self, ids):
         response = self.connection.get_response(
@@ -88,7 +88,7 @@ class DefaultStepikClient(StepikClient):
             )
         )
 
-        return [from_dict(Step, step) for step in response.json()["steps"]]
+        return self.datatype_parser.parse_list(Step, response, "steps")
     
     def get_progresses(self, ids):
         response = self.connection.get_response(
@@ -97,7 +97,7 @@ class DefaultStepikClient(StepikClient):
             )
         )
 
-        return [from_dict(Progress, progress) for progress in response.json()["progresses"]]
+        return self.datatype_parser.parse_list(Progress, response, "progresses")
 
     def create_new_attempt(self, step_id):
         response = self.connection.get_response(
@@ -117,7 +117,7 @@ class DefaultStepikClient(StepikClient):
         if (response.status_code != 201):
             raise ConnectionError(f"Can't create new attempt, status code: {response.status_code}")
 
-        return from_dict(Attempt, response.json()["attempts"][0])
+        return self.datatype_parser.parse(Attempt, response, "attempts")
     
     def create_new_solution(self, attempt_id, code = None, choices = None, text = None, ordering = None):
         if (code is not None):
@@ -172,7 +172,7 @@ class DefaultStepikClient(StepikClient):
             )
         )
 
-        return [from_dict(Submission, submission) for submission in response.json()["submissions"]]
+        return self.datatype_parser.parse_list(Submission, response, "submissions")
     
     def set_view(self, step_id, assignment_id):
         response = self.connection.get_response(
@@ -194,4 +194,4 @@ class DefaultStepikClient(StepikClient):
             )
         )
 
-        return [from_dict(Assignment, assignment) for assignment in response.json()["assignments"]]
+        return self.datatype_parser.parse_list(Assignment, response, "assignments")

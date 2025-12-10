@@ -1,13 +1,9 @@
 from abc import ABC, abstractmethod
-from ..connection import Connection
 from ..datatypes import UserCourse, Course, Section, Unit, Lesson, Step, Progress, Attempt, Submission, Assignment
 from typing import NoReturn, Optional, List
 
 
 class StepikClient(ABC):
-    @abstractmethod
-    def __init__(self, connection: Optional[Connection] = None): ...
-
     @abstractmethod
     def login(self, email: str, password: str) -> NoReturn: ...
 
