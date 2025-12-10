@@ -42,7 +42,7 @@ class Lesson:
     epic_count: int
     abuse_count: int
     vote_delta: int
-    vote: str
+    vote: str | None
     lti_consumer_key: str
     lti_secret_key: str
     lti_private_profile: bool

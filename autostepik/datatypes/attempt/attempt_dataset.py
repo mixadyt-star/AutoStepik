@@ -1,11 +1,11 @@
 """Attempt dataset module"""
 
 from dataclasses import dataclass
-from typing import List
+from typing import List, Optional
 
 @dataclass
 class AttemptDataset:
     """Attempt dataset model for attempt model"""
 
-    is_multiple_choice: bool
-    options: List[str]
+    is_multiple_choice: Optional[bool] = None
+    options: Optional[List[str]] = None

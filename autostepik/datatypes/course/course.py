@@ -32,7 +32,7 @@ class Course:
     certificate_link: str | None
     certificate_regular_link: str | None
     certificate_distinction_link: str | None
-    user_certificate: str | None
+    user_certificate: int | None
     referral_link: str | None
     schedule_link: str | None
     schedule_long_link: str | None

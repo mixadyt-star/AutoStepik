@@ -4,6 +4,7 @@ from .datatypes import Course, Section, Unit, Step, Progress
 from .solvers import Solver
 from typing import Optional, NoReturn
 from .logger import logger
+import traceback
 
 class AutoStepik:
     def __init__(self, email: str, password: str, solver: Solver, stepik_client: Optional[StepikClient] = None, input_output: Optional[Input | Output] = None):
@@ -13,24 +14,48 @@ class AutoStepik:
 
         self.id: int | None = None
 
-        self.stepik_client = stepik_client or DefaultStepikClient()
-        self.input_output = input_output or ConsoleInputOutput()
+        try:
+            self.stepik_client = stepik_client or DefaultStepikClient()
+            self.input_output = input_output or ConsoleInputOutput()
 
-        self.stepik_client.login(
-            email=self.email,
-            password=self.password,
-        )
-        logger.info("Loged in successfully")
+        except Exception as e:
+            logger.critical("Init auto stepik client failed")
+            logger.debug(traceback.format_exc())
+            exit()
 
-        self.id = self.stepik_client.get_self_id()
-        logger.info("Got self id successfully")
+        try:
+            self.stepik_client.login(
+                email=self.email,
+                password=self.password,
+            )
+            logger.info("Loged in successfully")
+        
+        except Exception as e:
+            logger.critical("Can't log in")
+            logger.debug(traceback.format_exc())
+            exit()
+
+        try:
+            self.id = self.stepik_client.get_self_id()
+            logger.info("Got self id successfully")
+
+        except Exception as e:
+            logger.critical("Can't get self id")
+            logger.debug(traceback.format_exc())
+            exit()
 
     def solve(self) -> NoReturn:
-        user_courses = self.stepik_client.get_user_courses()
-        courses = self.stepik_client.get_courses(
-            ids=[user_course.course for user_course in user_courses],
-        )
-        logger.info("Parsed courses successfully")
+        try:
+            user_courses = self.stepik_client.get_user_courses()
+            courses = self.stepik_client.get_courses(
+                ids=[user_course.course for user_course in user_courses],
+            )
+            logger.info("Parsed courses successfully")
+        
+        except Exception as e:
+            logger.critical("During parsing courses, error occured")
+            logger.debug(traceback.format_exc())
+            exit()
 
         self.input_output.print("Choose course: \n")
         for i, course in enumerate(courses):
@@ -45,19 +70,29 @@ class AutoStepik:
     def solve_course(self, course: Course) -> NoReturn:
         logger.info(f"Solving course {course.title}...")
         for section_id in course.sections:
-            section = self.stepik_client.get_section(section_id)
+            try:
+                section = self.stepik_client.get_section(section_id)
 
-            if (section.is_active):
-                self.solve_section(section)
+                if (section.is_active):
+                    self.solve_section(section)
+
+            except Exception as e:
+                logger.warning("During solving section, error occured. Skipping it")
+                logger.debug(traceback.format_exc())
 
         logger.info(f"Solved course {course.title} successfully")
 
     def solve_section(self, section: Section) -> NoReturn:
         logger.info(f"Solving section {section.title}...")
         for unit_id in section.units:
-            unit = self.stepik_client.get_unit(unit_id)
+            try:
+                unit = self.stepik_client.get_unit(unit_id)
 
-            self.solve_unit(unit)
+                self.solve_unit(unit)
+
+            except Exception as e:
+                logger.warning("During solving unit, error occured. Skipping it")
+                logger.debug(traceback.format_exc())
 
         logger.info(f"Solved section {section.title} successfully")
 
@@ -78,7 +113,12 @@ class AutoStepik:
         assignment_ids = [assignment_map.get(step.id, 0) for step in steps]
 
         for step, progress, assignment_id in zip(steps, progresses, assignment_ids):
-            self.solve_step(step, progress, assignment_id)
+            try:
+                self.solve_step(step, progress, assignment_id)
+
+            except Exception as e:
+                logger.warning("During solving step, error occured. Skipping it")
+                logger.debug(traceback.format_exc())
 
         logger.info(f"Solved lesson {lesson.title} successfully")
 
