@@ -21,6 +21,7 @@ class AiSolver(Solver):
             "matching",
             "fill-blanks",
             "number",
+            "table",
         ]
 
         self.ai_client = ai_client
@@ -55,7 +56,7 @@ class AiSolver(Solver):
                     code=answer,
                 )
         
-            case "choice":
+            case "choice" | "table":
                 stepik_client.create_new_solution(
                     attempt_id=new_attempt.id,
                     choices=json.loads(answer),
