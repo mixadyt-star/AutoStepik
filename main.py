@@ -5,7 +5,6 @@ from autostepik.logger import logger
 solver = AiSolver(
     ai_client=OpenRouterClient(
         token="YOUR OPEN ROUTER TOKEN",
-        model="mistralai/devstral-2512:free",
     ),
 )
 

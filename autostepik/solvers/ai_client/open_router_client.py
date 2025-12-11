@@ -31,6 +31,10 @@ class OpenRouterClient(AiClient):
                         ]
                     })
                 )
+
+                if (response.status_code == 429):
+                    logger.critical("OpenRouter token limit")
+                    exit()
             
                 response = response.json()
                 response = response["choices"][0]["message"]["content"]

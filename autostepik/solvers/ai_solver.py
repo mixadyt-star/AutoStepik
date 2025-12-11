@@ -82,7 +82,7 @@ class AiSolver(Solver):
             case "number":
                 stepik_client.create_new_solution(
                     attempt_id=new_attempt.id,
-                    number=int(answer),
+                    number=answer,
                 )
                     
             case _:

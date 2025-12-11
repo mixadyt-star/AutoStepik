@@ -146,7 +146,7 @@ class DefaultStepikClient(StepikClient):
                 blanks=blanks,
             )
 
-        elif (blanks is not None):
+        elif (number is not None):
             reply_type = SolutionReplyType(
                 number=number,
             )
