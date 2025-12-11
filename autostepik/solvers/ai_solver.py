@@ -3,11 +3,11 @@ from ..logger import logger
 from time import sleep
 import requests
 import json
-from typing import List
+from .ai_client import AiClient
 
-class DefaultSolver(CodeSolver, ChoiceSolver, TextSolver, StringSolver, SortingSolver):
-    def __init__(self, token_list: List[str]):
-        self.token_list = token_list
+class AiSolver(CodeSolver, ChoiceSolver, TextSolver, StringSolver, SortingSolver):
+    def __init__(self, ai_client: AiClient):
+        self.ai_client = ai_client
 
     def solve(self, step, assignment_id, user_id, stepik_client):
         if (step.block.name == "code"):
@@ -22,29 +22,9 @@ class DefaultSolver(CodeSolver, ChoiceSolver, TextSolver, StringSolver, SortingS
             """ + step.block.text + "\nТакже вот дополнительная информация о задаче: " + str(step.block.options)
 
             logger.info(f"Sending task to AI...")
-            response = requests.post(
-                url="https://openrouter.ai/api/v1/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {self.token_list[0]}",
-                    "Content-Type": "application/json",
-                },
-                data=json.dumps({
-                    "model": "kwaipilot/kat-coder-pro:free", # "x-ai/grok-4.1-fast:free",
-                    "messages": [
-                        {
-                        "role": "user",
-                        "content": prompt
-                        }
-                    ]
-                })
-            )
-
-            response = response.json()
-            response = response['choices'][0]['message']
+            code = self.ai_client.get_response(prompt).replace("```python", "").replace("```", "")
 
             logger.info(f"Got response from AI")
-            
-            code = response["content"].replace("```python", "").replace("```", "")
 
             self.send_code(
                 attempt_id=new_attempt.id,
@@ -84,33 +64,15 @@ class DefaultSolver(CodeSolver, ChoiceSolver, TextSolver, StringSolver, SortingS
             Тебе нужно выбрать верные по твоему мнению варианты ответа.
             В ответ ОБЯЗАТЕЛЬНО напиши ТОЛЬКО json вида: [false, true, true, false] (ИСПОЛЬЗУЙ ИСКЛЮЧИТЕЛЬНО true и false БЕЗ кавычек) и НИЧЕГО БОЛЬШЕ.
             Ещё ты ОБЯЗЯАТЕЛЬНО должен заполнить все опции значениями true / false, т.е. например если значения два и 1 верно ты должен вернуть [true, false].
-            Перед отправкой перевроверь формат ответа.
+            Перед отправкой перепроверь формат ответа.
             """ + step.block.text + "\nВот опции ответа: " + str(new_attempt.dataset) + "\nТакже вот дополнительная информация о задаче: " + str(step.block.options)
 
             logger.info(f"Sending task to AI...")
-            response = requests.post(
-                url="https://openrouter.ai/api/v1/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {self.token_list[0]}",
-                    "Content-Type": "application/json",
-                },
-                data=json.dumps({
-                    "model": "kwaipilot/kat-coder-pro:free", # "x-ai/grok-4.1-fast:free",
-                    "messages": [
-                        {
-                        "role": "user",
-                        "content": prompt
-                        }
-                    ],
-                })
-            )
-
-            response = response.json()
-            response = response['choices'][0]['message']
+            response = self.ai_client.get_response(prompt)
 
             logger.info(f"Got response from AI")
             
-            choices = json.loads(response["content"].replace("```json", "").replace("```", ""))
+            choices = json.loads(response.replace("```json", "").replace("```", ""))
 
             self.send_choices(
                 attempt_id=new_attempt.id,
@@ -156,29 +118,9 @@ class DefaultSolver(CodeSolver, ChoiceSolver, TextSolver, StringSolver, SortingS
             """ + step.block.text + "\nТакже вот дополнительная информация о задаче: " + str(step.block.options)
 
             logger.info(f"Sending task to AI...")
-            response = requests.post(
-                url="https://openrouter.ai/api/v1/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {self.token_list[0]}",
-                    "Content-Type": "application/json",
-                },
-                data=json.dumps({
-                    "model": "kwaipilot/kat-coder-pro:free", # "x-ai/grok-4.1-fast:free",
-                    "messages": [
-                        {
-                        "role": "user",
-                        "content": prompt
-                        }
-                    ]
-                })
-            )
-
-            response = response.json()
-            response = response['choices'][0]['message']
+            text = self.ai_client.get_response(prompt)
 
             logger.info(f"Got response from AI")
-            
-            text = response["content"]
 
             self.send_string(
                 attempt_id=new_attempt.id,
@@ -222,29 +164,11 @@ class DefaultSolver(CodeSolver, ChoiceSolver, TextSolver, StringSolver, SortingS
             """ + step.block.text + "\nВот опции ответа: " + str(new_attempt.dataset) + "\nТакже вот дополнительная информация о задаче: " + str(step.block.options)
 
             logger.info(f"Sending task to AI...")
-            response = requests.post(
-                url="https://openrouter.ai/api/v1/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {self.token_list[0]}",
-                    "Content-Type": "application/json",
-                },
-                data=json.dumps({
-                    "model": "kwaipilot/kat-coder-pro:free", # "x-ai/grok-4.1-fast:free",
-                    "messages": [
-                        {
-                        "role": "user",
-                        "content": prompt
-                        }
-                    ],
-                })
-            )
-
-            response = response.json()
-            response = response['choices'][0]['message']
+            response = self.ai_client.get_response(prompt)
 
             logger.info(f"Got response from AI")
             
-            ordering = json.loads(response["content"])
+            ordering = json.loads(response)
 
             self.send_ordering(
                 attempt_id=new_attempt.id,

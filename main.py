@@ -1,10 +1,12 @@
 from autostepik.autostepik import AutoStepik
-from autostepik.solvers import DefaultSolver
+from autostepik.solvers import AiSolver, OpenRouterClient
 from autostepik.logger import logger
 
-solver = DefaultSolver(token_list=[
-    "YOUR OPEN ROUTER TOKEN"
-])
+solver = AiSolver(
+    ai_client=OpenRouterClient(
+        token="YOUR OPEN ROUTER TOKEN",
+    ),
+)
 
 try:
     AutoStepik(

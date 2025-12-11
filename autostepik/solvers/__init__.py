@@ -1,2 +1,3 @@
-from .base import ChoiceSolver, CodeSolver, Solver, SortingSolver, StringSolver, TextSolver
-from .default_solver import DefaultSolver
+from .base import *
+from .ai_solver import AiSolver
+from .ai_client import *

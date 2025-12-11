@@ -8,7 +8,7 @@ class Attempt:
     """Task attempt model"""
 
     id: int
-    dataset: AttemptDataset | None
+    dataset: AttemptDataset | str | None
     dataset_url: None
     time: str
     status: str
