@@ -10,3 +10,4 @@ class AttemptDataset:
     is_multiple_choice: Optional[bool] = None
     options: Optional[List[str]] = None
     pairs: Optional[List[Dict[str, str]]] = None
+    components: Optional[List[Dict[str, str]]] = None

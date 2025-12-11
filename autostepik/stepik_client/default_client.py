@@ -119,7 +119,7 @@ class DefaultStepikClient(StepikClient):
 
         return self.datatype_parser.parse(Attempt, response, "attempts")
     
-    def create_new_solution(self, attempt_id, code = None, choices = None, text = None, ordering = None):
+    def create_new_solution(self, attempt_id, code = None, choices = None, text = None, ordering = None, blanks = None):
         if (code is not None):
             reply_type = SolutionReplyType(
                 code=code,
@@ -139,6 +139,11 @@ class DefaultStepikClient(StepikClient):
         elif (ordering is not None):
             reply_type = SolutionReplyType(
                 ordering=ordering,
+            )
+
+        elif (blanks is not None):
+            reply_type = SolutionReplyType(
+                blanks=blanks,
             )
 
         response = self.connection.get_response(

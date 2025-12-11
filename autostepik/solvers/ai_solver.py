@@ -16,6 +16,7 @@ class AiSolver(Solver):
             "string",
             "sorting",
             "matching",
+            "fill-blanks",
         ]
 
         self.ai_client = ai_client
@@ -67,6 +68,12 @@ class AiSolver(Solver):
                     attempt_id=new_attempt.id,
                     ordering=json.loads(response),
                 )
+
+            case "fill-blanks":
+                stepik_client.create_new_solution(
+                    attempt_id=new_attempt.id,
+                    blanks=json.loads(response),
+                )
                     
             case _:
                 logger.warning(f"Unknown task type: {step.block.name}, skipping it")
@@ -78,9 +85,9 @@ class AiSolver(Solver):
             sleep(1)
 
             submissions = stepik_client.get_submissions(
-                    limit=1,
-                    step_id=step.id,
-                    user_id=user_id,
+                limit=1,
+                step_id=step.id,
+                user_id=user_id,
             )
 
             match submissions[0].status:
