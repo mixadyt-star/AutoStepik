@@ -10,7 +10,7 @@ class OpenRouterClient(AiClient):
         self.token = token
         self.model = model
 
-    def get_response(self, prompt):
+    def get_answer(self, prompt):
         logger.info(f"Sending task to AI...")
 
         while True:
@@ -35,9 +35,11 @@ class OpenRouterClient(AiClient):
                 response = response.json()
                 response = response["choices"][0]["message"]["content"]
 
+                answer = response.split("<answer>")[-1].split("</answer>")[0]
+
                 logger.info(f"Got response from AI")
 
-                return response
+                return answer
 
             except Exception as e:
                 logger.warning("During receiving response from open router, error occured. Trying again")

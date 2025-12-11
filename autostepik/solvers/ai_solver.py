@@ -42,37 +42,37 @@ class AiSolver(Solver):
                 task_type=step.block.name,
             )
             
-            response = self.ai_client.get_response(prompt)
+            answer = self.ai_client.get_answer(prompt)
 
         match step.block.name:
             case "code":
                 stepik_client.create_new_solution(
                     attempt_id=new_attempt.id,
-                    code=response,
+                    code=answer,
                 )
         
             case "choice":
                 stepik_client.create_new_solution(
                     attempt_id=new_attempt.id,
-                    choices=json.loads(response),
+                    choices=json.loads(answer),
                 )
 
             case "string":
                 stepik_client.create_new_solution(
                     attempt_id=new_attempt.id,
-                    text=response,
+                    text=answer,
                 )
 
             case "sorting" | "matching":
                 stepik_client.create_new_solution(
                     attempt_id=new_attempt.id,
-                    ordering=json.loads(response),
+                    ordering=json.loads(answer),
                 )
 
             case "fill-blanks":
                 stepik_client.create_new_solution(
                     attempt_id=new_attempt.id,
-                    blanks=json.loads(response),
+                    blanks=json.loads(answer),
                 )
                     
             case _:
