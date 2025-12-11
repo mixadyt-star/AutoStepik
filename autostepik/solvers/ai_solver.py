@@ -15,6 +15,7 @@ class AiSolver(Solver):
             "choice",
             "string",
             "sorting",
+            "matching",
         ]
 
         self.ai_client = ai_client
@@ -61,7 +62,7 @@ class AiSolver(Solver):
                     text=response,
                 )
 
-            case "sorting":
+            case "sorting" | "matching":
                 stepik_client.create_new_solution(
                     attempt_id=new_attempt.id,
                     ordering=json.loads(response),
