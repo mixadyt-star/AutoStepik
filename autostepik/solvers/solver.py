@@ -1,5 +1,5 @@
-from ...datatypes import Step
-from ...stepik_client import StepikClient
+from ..datatypes import Step
+from ..stepik_client import StepikClient
 from abc import ABC, abstractmethod
 from typing import NoReturn
 
