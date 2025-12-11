@@ -11,6 +11,8 @@ class OpenRouterClient(AiClient):
         self.model = model
 
     def get_response(self, prompt):
+        logger.info(f"Sending task to AI...")
+
         while True:
             try:
                 response = requests.post(
@@ -32,6 +34,8 @@ class OpenRouterClient(AiClient):
             
                 response = response.json()
                 response = response["choices"][0]["message"]["content"]
+
+                logger.info(f"Got response from AI")
 
                 return response
 

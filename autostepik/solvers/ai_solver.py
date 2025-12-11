@@ -1,30 +1,28 @@
 from .base import CodeSolver, ChoiceSolver, StringSolver, TextSolver, SortingSolver
 from ..logger import logger
 from time import sleep
-import requests
 import json
 from .ai_client import AiClient
+from .prompt_generator import PromptGenerator, DefaultPromptGenerator
+from typing import Optional
 
 class AiSolver(CodeSolver, ChoiceSolver, TextSolver, StringSolver, SortingSolver):
-    def __init__(self, ai_client: AiClient):
+    def __init__(self, ai_client: AiClient, prompt_generator: Optional[PromptGenerator] = None):
         self.ai_client = ai_client
+        self.prompt_generator = prompt_generator or DefaultPromptGenerator()
 
     def solve(self, step, assignment_id, user_id, stepik_client):
         if (step.block.name == "code"):
             logger.info(f"Solving code task...")
 
             new_attempt = stepik_client.create_new_attempt(step_id=step.id)
+
+            prompt = self.prompt_generator.generate_code_prompt(
+                step=step,
+                attempt=new_attempt,
+            )
             
-            prompt = """
-            Сейчас я дам тебе условие задачи на программирование.
-            Тебе нужно написать код, который эту задачу решит.
-            В ответ напиши ТОЛЬКО код решения ОБЫЧНЫМ ТЕКСТОМ БЕЗ МАРКДАУНА и НИЧЕГО больше.
-            """ + step.block.text + "\nТакже вот дополнительная информация о задаче: " + str(step.block.options)
-
-            logger.info(f"Sending task to AI...")
             code = self.ai_client.get_response(prompt).replace("```python", "").replace("```", "")
-
-            logger.info(f"Got response from AI")
 
             self.send_code(
                 attempt_id=new_attempt.id,
@@ -59,19 +57,12 @@ class AiSolver(CodeSolver, ChoiceSolver, TextSolver, StringSolver, SortingSolver
 
             new_attempt = stepik_client.create_new_attempt(step_id=step.id)
             
-            prompt = """
-            Сейчас я дам тебе условие задачи на выбор.
-            Тебе нужно выбрать верные по твоему мнению варианты ответа.
-            В ответ ОБЯЗАТЕЛЬНО напиши ТОЛЬКО json вида: [false, true, true, false] (ИСПОЛЬЗУЙ ИСКЛЮЧИТЕЛЬНО true и false БЕЗ кавычек) и НИЧЕГО БОЛЬШЕ.
-            Ещё ты ОБЯЗЯАТЕЛЬНО должен заполнить все опции значениями true / false, т.е. например если значения два и 1 верно ты должен вернуть [true, false].
-            Перед отправкой перепроверь формат ответа.
-            """ + step.block.text + "\nВот опции ответа: " + str(new_attempt.dataset) + "\nТакже вот дополнительная информация о задаче: " + str(step.block.options)
+            prompt = self.prompt_generator.generate_choice_prompt(
+                step=step,
+                attempt=new_attempt,
+            )
 
-            logger.info(f"Sending task to AI...")
             response = self.ai_client.get_response(prompt)
-
-            logger.info(f"Got response from AI")
-            
             choices = json.loads(response.replace("```json", "").replace("```", ""))
 
             self.send_choices(
@@ -111,16 +102,12 @@ class AiSolver(CodeSolver, ChoiceSolver, TextSolver, StringSolver, SortingSolver
 
             new_attempt = stepik_client.create_new_attempt(step_id=step.id)
             
-            prompt = """
-            Сейчас я дам тебе условие задачи в которой нужно будет ввести ответ.
-            Тебе нужно написать ответ, который эту задачу решит.
-            В ответ напиши ТОЛЬКО ответ решения ОБЫЧНЫМ ТЕКСТОМ БЕЗ МАРКДАУНА и НИЧЕГО больше.
-            """ + step.block.text + "\nТакже вот дополнительная информация о задаче: " + str(step.block.options)
+            prompt = self.prompt_generator.generate_string_prompt(
+                step=step,
+                attempt=new_attempt,
+            )
 
-            logger.info(f"Sending task to AI...")
             text = self.ai_client.get_response(prompt)
-
-            logger.info(f"Got response from AI")
 
             self.send_string(
                 attempt_id=new_attempt.id,
@@ -155,19 +142,12 @@ class AiSolver(CodeSolver, ChoiceSolver, TextSolver, StringSolver, SortingSolver
 
             new_attempt = stepik_client.create_new_attempt(step_id=step.id)
             
-            prompt = """
-            Сейчас я дам тебе условие задачи на сортировку.
-            Тебе нужно отсортировать данные элементы по порядку, который кажется тебе верным.
-            В ответ ОБЯЗАТЕЛЬНО напиши ТОЛЬКО json вида: [0, 3, 2, 1] (ИСПОЛЬЗУЙ ИСКЛЮЧИТЕЛЬНО цифры от 0 БЕЗ кавычек) и НИЧЕГО БОЛЬШЕ.
-            Ещё ты ОБЯЗЯАТЕЛЬНО должен заполнить все опции значениями, т.е. например если опции две и 2 идёт за первым ты должен вернуть [0, 1].
-            Перед отправкой перевроверь формат ответа.
-            """ + step.block.text + "\nВот опции ответа: " + str(new_attempt.dataset) + "\nТакже вот дополнительная информация о задаче: " + str(step.block.options)
+            prompt = self.prompt_generator.generate_sorting_prompt(
+                step=step,
+                attempt=new_attempt,
+            )
 
-            logger.info(f"Sending task to AI...")
-            response = self.ai_client.get_response(prompt)
-
-            logger.info(f"Got response from AI")
-            
+            response = self.ai_client.get_response(prompt)  
             ordering = json.loads(response)
 
             self.send_ordering(
@@ -197,3 +177,6 @@ class AiSolver(CodeSolver, ChoiceSolver, TextSolver, StringSolver, SortingSolver
                 else:
                     logger.info(f"Correct solution! (status {submissions[0].status})")
                     break
+                    
+        else:
+            logger.warning(f"Unknown task type: {step.block.name}, skipping it")

@@ -1,0 +1,38 @@
+from .prompt_generator import PromptGenerator
+from typing import Optional, Literal
+
+class DefaultPromptGenerator(PromptGenerator):
+    def __init__(self, language: Optional[Literal["ru", "en"]] = "ru"):
+        self.language = language
+
+    def generate_code_prompt(self, step, attempt):
+        return "Сейчас я дам тебе условие задачи на программирование. " \
+        "Тебе нужно написать код, который эту задачу решит. " \
+        "В ответ напиши ТОЛЬКО код решения ОБЫЧНЫМ ТЕКСТОМ БЕЗ МАРКДАУНА и НИЧЕГО больше. " \
+        f"Вот условие задачи: {step.block.text} " \
+        f"Также вот дополнительная информация о задаче: {str(step.block.options)}"
+    
+    def generate_choice_prompt(self, step, attempt):
+        return "Сейчас я дам тебе условие задачи на выбор. " \
+        "Тебе нужно выбрать верные по твоему мнению варианты ответа. " \
+        "В ответ ОБЯЗАТЕЛЬНО напиши ТОЛЬКО json вида: [false, true, true, false] и НИЧЕГО БОЛЬШЕ. " \
+        "Ещё ты ОБЯЗЯАТЕЛЬНО должен заполнить все опции значениями true / false. " \
+        f"Вот условие задачи: {step.block.text} " \
+        f"Вот опции ответа: {str(attempt.dataset)} " \
+        f"Также вот дополнительная информация о задаче: {str(step.block.options)}"
+    
+    def generate_string_prompt(self, step, attempt):
+        return "Сейчас я дам тебе условие задачи в которой нужно будет ввести ответ. " \
+        "Тебе нужно написать ответ, который эту задачу решит. " \
+        "В ответ напиши ТОЛЬКО ответ решения ОБЫЧНЫМ ТЕКСТОМ БЕЗ МАРКДАУНА и НИЧЕГО больше. " \
+        f"Вот условие задачи: {step.block.text}" \
+        f"Также вот дополнительная информация о задаче: {str(step.block.options)}"
+    
+    def generate_sorting_prompt(self, step, attempt):
+        return "Сейчас я дам тебе условие задачи на сортировку. " \
+        "Тебе нужно отсортировать данные элементы по порядку, который кажется тебе верным. " \
+        "В ответ ОБЯЗАТЕЛЬНО напиши ТОЛЬКО json вида: [0, 3, 2, 1] и НИЧЕГО БОЛЬШЕ. " \
+        "Ещё ты ОБЯЗАТЕЛЬНО должен заполнить все опции значениями начиная с нуля. " \
+        f"Вот условие задачи: {step.block.text} " \
+        f"Вот опции ответа: {str(attempt.dataset)} " \
+        f"Также вот дополнительная информация о задаче: {str(step.block.options)}"
