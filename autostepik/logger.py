@@ -23,7 +23,7 @@ console_handler.setFormatter(colorlog.ColoredFormatter(
 ))
 console_handler.setLevel(logging.INFO)
 
-file_handler = logging.FileHandler('autostepik.log')
+file_handler = logging.FileHandler('autostepik.log', encoding="utf-8")
 file_handler.setFormatter(logging.Formatter(
     fmt="[ %(asctime)s %(filename)s:%(lineno)d %(levelname)s] %(message)s",
     datefmt="%y-%m-%d %H:%M:%S",

@@ -8,6 +8,9 @@ from typing import Optional
 
 class AiSolver(Solver):
     def __init__(self, ai_client: AiClient, prompt_generator: Optional[PromptGenerator] = None):
+        self.correct = 0
+        self.wrong = 0
+
         self.supported = [
             "text",
             "video",
@@ -17,6 +20,7 @@ class AiSolver(Solver):
             "sorting",
             "matching",
             "fill-blanks",
+            "number",
         ]
 
         self.ai_client = ai_client
@@ -74,6 +78,12 @@ class AiSolver(Solver):
                     attempt_id=new_attempt.id,
                     blanks=json.loads(answer),
                 )
+
+            case "number":
+                stepik_client.create_new_solution(
+                    attempt_id=new_attempt.id,
+                    number=int(answer),
+                )
                     
             case _:
                 logger.warning(f"Unknown task type: {step.block.name}, skipping it")
@@ -93,11 +103,15 @@ class AiSolver(Solver):
             match submissions[0].status:
                 case "wrong":
                     logger.info(f"Wrong solution :(")
+                    self.wrong += 1
                     break
 
                 case "correct":
                     logger.info(f"Correct solution!")
+                    self.correct += 1
                     break
 
                 case "evaluation":
                     logger.info("Evaluation status...")
+
+        logger.info(f"✅ Correct solutions: {self.correct} ❌ Wrong solutions: {self.wrong}")

@@ -5,14 +5,16 @@ from .solvers import Solver
 from typing import Optional, NoReturn
 from .logger import logger
 import traceback
+from concurrent.futures import ThreadPoolExecutor
 
 class AutoStepik:
-    def __init__(self, email: str, password: str, solver: Solver, stepik_client: Optional[StepikClient] = None, input_output: Optional[Input | Output] = None):
+    def __init__(self, email: str, password: str, solver: Solver, max_workers: Optional[int] = 2, stepik_client: Optional[StepikClient] = None, input_output: Optional[Input | Output] = None):
         self.email = email
         self.password = password
         self.solver = solver
 
         self.id: int | None = None
+        self.executor = ThreadPoolExecutor(max_workers=max_workers)
 
         try:
             self.stepik_client = stepik_client or DefaultStepikClient()
@@ -127,7 +129,7 @@ class AutoStepik:
         if (not progress.is_passed):
             self.solver.context = []
             logger.info(f"Solving step {step.position}...")
-            self.solver.solve(
+            self.executor.submit(self.solver.solve,
                 step=step,
                 assignment_id=assignment_id,
                 user_id=self.id,
