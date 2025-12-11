@@ -40,6 +40,7 @@ class OpenRouterClient(AiClient):
                 response = response["choices"][0]["message"]["content"]
 
                 answer = response.split("<answer>")[-1].split("</answer>")[0]
+                answer = answer.replace("```python", "").replace("```json", "").replace("```", "")
 
                 logger.info(f"Got response from AI")
 

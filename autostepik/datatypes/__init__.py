@@ -1,4 +1,4 @@
-from .attempt import AttemptDataset, Attempt
+from .attempt import Attempt
 from .course import CourseAction, CourseActions, Course
 from .lesson import LessonActions, Lesson
 from .step import StepActions, StepBlock, Step
