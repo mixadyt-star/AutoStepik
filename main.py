@@ -5,6 +5,7 @@ from autostepik.logger import logger
 solver = AiSolver(
     ai_client=OpenRouterClient(
         token="YOUR OPEN ROUTER TOKEN",
+        model="YOUR MODEL NAME" # You can find them on https://openrouter.ai/models
     ),
 )
 
